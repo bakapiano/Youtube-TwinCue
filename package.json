@@ -1,6 +1,6 @@
 {
   "name": "youtube-twincue-userscript",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "private": true,
   "type": "module",
   "description": "TwinCue userscript: native bilingual captions for YouTube, compatible with Tampermonkey and Violentmonkey.",

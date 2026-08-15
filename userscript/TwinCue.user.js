@@ -2,7 +2,7 @@
 // @name         TwinCue – Native Bilingual Subtitles for YouTube
 // @name:zh-CN   TwinCue – YouTube 原生双语字幕
 // @namespace    https://github.com/bakapiano/Youtube-TwinCue
-// @version      0.3.0
+// @version      0.3.1
 // @description  Auto-detect YouTube captions and display synchronized source and auto-translated subtitles.
 // @description:zh-CN 自动识别 YouTube 原字幕，并同步显示原文与 YouTube 自动翻译字幕。
 // @author       Bakapiano
@@ -23,7 +23,7 @@
   if (window.top !== window.self || window.__TwinCueUserscriptInstalled) return;
   window.__TwinCueUserscriptInstalled = true;
 
-  const VERSION = "0.3.0";
+  const VERSION = "0.3.1";
   const SETTINGS_KEY = "twincue:settings:v1";
   const DEFAULT_SETTINGS = {
     enabled: true,
