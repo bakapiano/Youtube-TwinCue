@@ -2,6 +2,9 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
+[![Greasy Fork 安装量](https://img.shields.io/greasyfork/dt/591486?label=installs)](https://greasyfork.org/zh-CN/scripts/591486-twincue-native-bilingual-subtitles-for-youtube)
+[![Greasy Fork 版本](https://img.shields.io/greasyfork/v/591486)](https://greasyfork.org/zh-CN/scripts/591486-twincue-native-bilingual-subtitles-for-youtube)
+
 TwinCue 是一个适用于 Tampermonkey 和 Violentmonkey 的单文件用户脚本，可在 YouTube 视频上同步显示两行字幕：视频原字幕，以及由 YouTube 自动翻译生成的第二语言字幕。
 
 不再需要 Chrome 扩展、Manifest、Chrome 商店或 TwinCue 后端服务。

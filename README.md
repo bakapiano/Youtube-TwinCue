@@ -2,6 +2,9 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
+[![Greasy Fork installs](https://img.shields.io/greasyfork/dt/591486?label=installs)](https://greasyfork.org/en/scripts/591486-twincue-native-bilingual-subtitles-for-youtube)
+[![Greasy Fork version](https://img.shields.io/greasyfork/v/591486)](https://greasyfork.org/en/scripts/591486-twincue-native-bilingual-subtitles-for-youtube)
+
 TwinCue is a single-file userscript for Tampermonkey and Violentmonkey. It displays two synchronized subtitle lines on YouTube: the video's native caption track and a YouTube auto-translated track.
 
 No Chrome extension, Manifest, Web Store installation, or TwinCue backend is required.
