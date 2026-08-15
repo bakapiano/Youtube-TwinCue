@@ -32,6 +32,12 @@ TwinCue 是一个适用于 Tampermonkey 和 Violentmonkey 的单文件用户脚�
 
 本地开发时，也可以直接把 [`userscript/TwinCue.user.js`](userscript/TwinCue.user.js) 导入脚本管理器。
 
+## 使用预览
+
+![TwinCue 中文设置面板与双语字幕](docs/images/twincue-usage-zh-CN.png)
+
+点击播放器中的 **TC**，选择字幕类型和翻译语言，即可继续观看同步双语字幕。
+
 ## 使用
 
 1. 播放一个带字幕的 YouTube 视频。
@@ -84,6 +90,7 @@ npx playwright install chromium
 ```powershell
 npm run check
 npm test
+npm run docs:screenshots
 ```
 
 使用之前登录过的开发 Profile 运行真实 YouTube 测试：

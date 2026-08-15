@@ -7,7 +7,8 @@
   "scripts": {
     "test": "node --test",
     "test:profile": "node scripts/diagnose-userscript-profile.mjs",
-    "check": "node --check userscript/TwinCue.user.js"
+    "check": "node --check userscript/TwinCue.user.js",
+    "docs:screenshots": "node scripts/render-readme-screenshots.mjs"
   },
   "devDependencies": {
     "playwright": "1.60.0"

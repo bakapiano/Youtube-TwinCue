@@ -32,6 +32,12 @@ No Chrome extension, Manifest, Web Store installation, or TwinCue backend is req
 
 For local development, import [`userscript/TwinCue.user.js`](userscript/TwinCue.user.js) directly into the userscript manager.
 
+## Preview
+
+![TwinCue English settings panel and bilingual subtitles](docs/images/twincue-usage-en.png)
+
+Click **TC** in the player, choose the caption type and translation language, then continue watching with synchronized bilingual subtitles.
+
 ## Use
 
 1. Play a YouTube video that has captions.
@@ -84,6 +90,7 @@ Run syntax, metadata, and simulated YouTube integration tests:
 ```powershell
 npm run check
 npm test
+npm run docs:screenshots
 ```
 
 Run the optional real YouTube test with the previously signed-in development profile:
