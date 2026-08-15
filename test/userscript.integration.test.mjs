@@ -93,7 +93,7 @@ test("TwinCue userscript detects the source language and renders bilingual capti
       };
     });
 
-    assert.equal(result.version, "0.3.1");
+    assert.equal(result.version, "0.3.2");
     assert.equal(result.status.sourceLanguage, "en");
     assert.equal(result.status.autoDetectedSource, true);
     assert.equal(result.source, "Hello from YouTube");
