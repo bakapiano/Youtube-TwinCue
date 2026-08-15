@@ -7,7 +7,7 @@ const metadata = source.match(/\/\/ ==UserScript==[\s\S]*?\/\/ ==\/UserScript==/
 
 test("userscript metadata supports direct installation and GitHub updates", () => {
   assert.match(metadata, /@name\s+TwinCue/);
-  assert.match(metadata, /@version\s+0\.3\.2/);
+  assert.match(metadata, /@version\s+0\.3\.3/);
   assert.match(metadata, /@match\s+https:\/\/www\.youtube\.com\/\*/);
   assert.match(metadata, /@run-at\s+document-start/);
   assert.match(metadata, /@grant\s+none/);
