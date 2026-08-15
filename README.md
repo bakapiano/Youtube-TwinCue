@@ -26,7 +26,7 @@ No Chrome extension, Manifest, Web Store installation, or TwinCue backend is req
 1. Install a userscript manager:
    - [Tampermonkey](https://www.tampermonkey.net/)
    - [Violentmonkey](https://violentmonkey.github.io/)
-2. Open the [TwinCue userscript](https://raw.githubusercontent.com/bakapiano/Youtube-TwinCue/main/userscript/TwinCue.user.js).
+2. Install TwinCue from [Greasy Fork](https://greasyfork.org/en/scripts/591486-twincue-native-bilingual-subtitles-for-youtube) (recommended), or open the [GitHub Raw userscript](https://raw.githubusercontent.com/bakapiano/Youtube-TwinCue/main/userscript/TwinCue.user.js).
 3. Confirm installation in the userscript manager.
 4. Open or refresh a YouTube video with captions.
 

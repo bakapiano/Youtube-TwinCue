@@ -26,7 +26,7 @@ TwinCue 是一个适用于 Tampermonkey 和 Violentmonkey 的单文件用户脚�
 1. 安装用户脚本管理器：
    - [Tampermonkey](https://www.tampermonkey.net/)
    - [Violentmonkey](https://violentmonkey.github.io/)
-2. 打开 [TwinCue 用户脚本](https://raw.githubusercontent.com/bakapiano/Youtube-TwinCue/main/userscript/TwinCue.user.js)。
+2. 从 [Greasy Fork](https://greasyfork.org/zh-CN/scripts/591486-twincue-native-bilingual-subtitles-for-youtube) 安装 TwinCue（推荐），或打开 [GitHub Raw 用户脚本](https://raw.githubusercontent.com/bakapiano/Youtube-TwinCue/main/userscript/TwinCue.user.js)。
 3. 在脚本管理器中确认安装。
 4. 打开或刷新一个带字幕的 YouTube 视频。
 
