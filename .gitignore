@@ -1,0 +1,9 @@
+node_modules/
+artifacts/
+.browser-profile/
+playwright-report/
+test-results/
+*.crx
+*.pem
+.DS_Store
+npm-debug.log*

@@ -1,0 +1,8 @@
+{
+  "appName": {
+    "message": "TwinCue – Bilingual Subtitles for YouTube"
+  },
+  "appDescription": {
+    "message": "Auto-detects YouTube native or auto-generated captions and displays YouTube auto-translation as bilingual subtitles."
+  }
+}
