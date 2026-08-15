@@ -2,115 +2,105 @@
 
 [English](README.md) | [简体中文](README.zh-CN.md)
 
-TwinCue is a Manifest V3 Chrome extension that displays two synchronized subtitle lines on YouTube: the video's native caption track and a YouTube auto-translated track.
+TwinCue is a single-file userscript for Tampermonkey and Violentmonkey. It displays two synchronized subtitle lines on YouTube: the video's native caption track and a YouTube auto-translated track.
 
-It works with both creator-provided captions and YouTube auto-generated captions (ASR). Caption language is detected from the active audio track, so a previously selected translated caption is not mistaken for the source language.
+No Chrome extension, Manifest, Web Store installation, or TwinCue backend is required.
 
 > TwinCue is an independent project and is not affiliated with or endorsed by YouTube or Google.
 
 ## Features
 
 - Automatically detects the source language from the active YouTube audio track
-- Supports manual and auto-generated (ASR) captions
+- Supports creator-provided and YouTube auto-generated (ASR) captions
 - Uses YouTube's own auto-translation
 - Renders synchronized source and translated subtitle lines
 - Lets you prefer manual captions, require manual captions, or require ASR
-- Offers a target-language dropdown with 20 common languages
-- Provides selectable English and Simplified Chinese interfaces
-- Stores settings locally/with Chrome Sync; no TwinCue server or analytics
+- Includes a 20-language translation dropdown
+- Includes selectable English and Simplified Chinese interfaces
+- Provides an in-player **TC** settings button
+- Stores settings only in YouTube local storage
+- Updates directly from GitHub through userscript-manager update checks
 
-## Install in Chrome
+## Install
 
-1. Download or clone this repository.
-2. Open `chrome://extensions`.
-3. Enable **Developer mode**.
-4. Click **Load unpacked**.
-5. Select the repository's `extension` directory.
-6. Refresh an open YouTube tab.
+1. Install a userscript manager:
+   - [Tampermonkey](https://www.tampermonkey.net/)
+   - [Violentmonkey](https://violentmonkey.github.io/)
+2. Open the [TwinCue userscript](https://raw.githubusercontent.com/bakapiano/Youtube-TwinCue/main/userscript/TwinCue.user.js).
+3. Confirm installation in the userscript manager.
+4. Open or refresh a YouTube video with captions.
 
-After editing the source, click the extension card's **Reload** button on `chrome://extensions`, then refresh YouTube.
+For local development, import [`userscript/TwinCue.user.js`](userscript/TwinCue.user.js) directly into the userscript manager.
 
 ## Use
 
-1. Open a YouTube video that has captions.
-2. Click the TwinCue toolbar icon.
+1. Play a YouTube video that has captions.
+2. Click the **TC** button in the upper-left corner of the player.
 3. Choose:
    - Source caption type: prefer manual / manual only / auto-generated only
    - Translation language
    - Interface language: English / 中文
-4. Play the video. TwinCue automatically detects the source language and displays both lines.
+4. TwinCue detects the source language and renders both subtitle lines.
 
-The popup reports the detected source language and current loading/error state.
+Settings are saved under `twincue:settings:v1` in YouTube local storage.
 
 ## How it works
 
 Modern YouTube timed-text requests require a short-lived Proof-of-Origin token (PoToken). Directly fetching `captionTracks[].baseUrl` can return HTTP 200 with an empty body.
 
-TwinCue therefore runs in the YouTube page and:
+TwinCue runs at `document-start` in the YouTube page and:
 
 1. Reads caption metadata from `ytInitialPlayerResponse`.
 2. Detects the source language from the active `audioTrackId`.
-3. Asks the YouTube player to select the source and translated tracks.
+3. Asks the YouTube player to select source and translated caption tracks.
 4. Captures the player's valid `/api/timedtext?...&pot=...` JSON3 responses.
-5. Aligns the cue timestamps and renders a bilingual overlay.
+5. Aligns cue timestamps and renders a bilingual overlay.
 
-PoTokens and signed caption URLs expire and are never treated as permanent URLs.
+PoTokens and signed caption URLs expire and are not persisted.
 
-## Permissions and privacy
+## Privacy
 
-TwinCue requests only:
+TwinCue has no backend, analytics, advertising, or remote code. Caption text is processed inside the YouTube page and is not sent to a TwinCue service.
 
-- `storage`: saves extension settings and the latest status
-- `https://www.youtube.com/*`: runs the subtitle integration on YouTube
-
-TwinCue has no backend, analytics, advertising, or remote code. Caption text stays in the YouTube page and is not sent to a TwinCue service.
+The only persistent data is the user's TwinCue settings in YouTube local storage.
 
 ## Development
 
 Requirements:
 
 - Node.js 22+
-- Google Chrome
-- PowerShell for the Windows profile helper scripts
+- Playwright Chromium for the simulated integration test
+- Google Chrome and the ignored `.browser-profile/chrome` directory for the optional signed-in profile test
 
-Install dependencies:
+Install dependencies and browsers:
 
 ```powershell
 npm install
 npx playwright install chromium
 ```
 
-Run unit and extension integration tests:
+Run syntax, metadata, and simulated YouTube integration tests:
 
 ```powershell
+npm run check
 npm test
-npm run test:extension
 ```
 
-Run the low-level caption probe:
+Run the optional real YouTube test with the previously signed-in development profile:
 
 ```powershell
-node scripts/probe-cdp.mjs --video=aircAruvnKk --source=en --kind=manual --target=zh-Hans
+npm run test:profile
 ```
 
-The probe stores ignored diagnostic artifacts in `artifacts/`. `npm run verify` validates the manual-caption and ASR artifacts after the corresponding probes have been run locally.
-
-## Verified cases
-
-| Source | Track | Source cues | Translated cues | Alignment coverage |
-|---|---|---:|---:|---:|
-| Creator-provided English | `en / manual` | 286 | 284 | 99.3% |
-| YouTube auto-generated English | `en / asr` | 27 | 26 | 96.3% |
-
-The extension integration test also verifies source-language auto-detection, timed-text interception, bilingual rendering, and native-caption suppression.
+The real-profile test opens regular Chrome off-screen, injects the userscript into a real YouTube watch page, verifies native and translated caption responses, and writes its ignored report to `artifacts/`.
 
 ## Project layout
 
 ```text
-extension/   Chrome extension source
-scripts/     Playwright/CDP probes and test helpers
-src/         Caption parsing and alignment helpers
-test/        Unit tests
+userscript/TwinCue.user.js          Installable userscript
+test/userscript.integration.test.mjs Simulated YouTube integration test
+test/userscript.metadata.test.mjs    Metadata and Chrome-API independence checks
+scripts/diagnose-userscript-profile.mjs Optional signed-in profile test
 ```
 
 ## Limitations
@@ -118,4 +108,4 @@ test/        Unit tests
 - TwinCue depends on undocumented YouTube player internals that may change.
 - A video must expose a translatable caption track.
 - Translation quality is determined by YouTube.
-- Unpacked extensions must be reloaded manually after source changes.
+- Users must install a userscript manager first.

@@ -1,16 +1,13 @@
 {
-  "name": "youtube-twincue",
-  "version": "0.2.1",
+  "name": "youtube-twincue-userscript",
+  "version": "0.3.0",
   "private": true,
   "type": "module",
-  "description": "TwinCue: native bilingual captions for YouTube, powered by YouTube caption tracks and auto-translation.",
+  "description": "TwinCue userscript: native bilingual captions for YouTube, compatible with Tampermonkey and Violentmonkey.",
   "scripts": {
-    "probe": "node scripts/probe-cdp.mjs",
-    "probe:direct": "node scripts/probe-playwright.mjs",
-    "install:chrome": "node scripts/open-extension-install.mjs",
     "test": "node --test",
-    "test:extension": "node scripts/test-extension.mjs",
-    "verify": "node scripts/verify-artifacts.mjs"
+    "test:profile": "node scripts/diagnose-userscript-profile.mjs",
+    "check": "node --check userscript/TwinCue.user.js"
   },
   "devDependencies": {
     "playwright": "1.60.0"

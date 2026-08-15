@@ -6,7 +6,14 @@ import { chromium } from "playwright";
 
 const chromePath = "C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe";
 const profilePath = path.resolve(".browser-profile", "chrome");
-const mainScript = await readFile(path.resolve("extension", "main.js"), "utf8");
+const userscript = await readFile(path.resolve("userscript", "TwinCue.user.js"), "utf8");
+const settings = {
+  enabled: true,
+  sourceLanguage: "auto",
+  sourceKind: "any",
+  targetLanguage: "zh-Hans",
+  uiLanguage: "zh-CN",
+};
 
 function delay(milliseconds) {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
@@ -55,15 +62,8 @@ try {
   browser = await chromium.connectOverCDP(`http://127.0.0.1:${port}`);
   const context = browser.contexts()[0];
   const page = context.pages()[0] ?? (await context.newPage());
-  const consoleErrors = [];
   const pageErrors = [];
   const timedText = [];
-
-  page.on("console", (message) => {
-    if (["error", "warning"].includes(message.type())) {
-      consoleErrors.push({ type: message.type(), text: message.text().slice(0, 500) });
-    }
-  });
   page.on("pageerror", (error) => pageErrors.push(String(error).slice(0, 1000)));
   page.on("response", async (response) => {
     if (!response.url().includes("/api/timedtext")) return;
@@ -84,33 +84,15 @@ try {
     });
   });
 
-  await page.addInitScript({ content: mainScript });
   await page.addInitScript({
-    content: `(() => {
-      const config = ${JSON.stringify({
-        enabled: true,
-        sourceLanguage: "auto",
-        sourceKind: "any",
-        targetLanguage: "zh-Hans",
-        uiLanguage: "zh-CN",
-        settingsVersion: 2,
-      })};
-      const publish = () => {
-        const root = document.documentElement;
-        if (!root) return setTimeout(publish, 0);
-        root.setAttribute("data-yt-native-bilingual-config", JSON.stringify(config));
-        root.dispatchEvent(new Event("yt-native-bilingual-config"));
-      };
-      publish();
-    })();`,
+    content: `localStorage.setItem("twincue:settings:v1", ${JSON.stringify(JSON.stringify(settings))});\n${userscript}`,
   });
-
   await page.goto("https://www.youtube.com/watch?v=aircAruvnKk&hl=en", {
     waitUntil: "domcontentloaded",
     timeout: 60_000,
   });
   await page.waitForFunction(
-    () => Boolean(document.querySelector("#movie_player") && window.ytInitialPlayerResponse),
+    () => Boolean(document.querySelector("#movie_player") && window.TwinCue),
     null,
     { timeout: 30_000 },
   );
@@ -119,52 +101,37 @@ try {
     player?.mute?.();
     player?.playVideo?.();
   });
-
-  await page.waitForFunction(() => {
-    try {
-      const status = JSON.parse(document.documentElement.getAttribute("data-yt-native-bilingual-status") || "null");
-      return status && ["ready", "error"].includes(status.state);
-    } catch {
-      return false;
-    }
-  }, null, { timeout: 45_000 });
+  try {
+    await page.waitForFunction(() => ["ready", "error"].includes(window.TwinCue?.getStatus().state), null, {
+      timeout: 45_000,
+    });
+  } catch (error) {
+    const diagnostic = await page.evaluate(() => ({
+      installed: Boolean(window.__TwinCueUserscriptInstalled),
+      hasApi: Boolean(window.TwinCue),
+      status: window.TwinCue?.getStatus(),
+      settings: window.TwinCue?.getSettings(),
+      playerStatus: window.ytInitialPlayerResponse?.playabilityStatus?.status,
+      videoId: window.ytInitialPlayerResponse?.videoDetails?.videoId,
+      playerPresent: Boolean(document.querySelector("#movie_player")),
+      rootPresent: Boolean(document.querySelector("#twincue-root")),
+    }));
+    throw new Error(`Userscript did not settle: ${JSON.stringify(diagnostic)}`, { cause: error });
+  }
 
   const pageState = await page.evaluate(() => {
-    const status = JSON.parse(document.documentElement.getAttribute("data-yt-native-bilingual-status") || "null");
-    const source = document.querySelector(".yt-native-bilingual-source")?.textContent || "";
-    const translated = document.querySelector(".yt-native-bilingual-translated")?.textContent || "";
-    const renderer = window.ytInitialPlayerResponse?.captions?.playerCaptionsTracklistRenderer;
+    const root = document.querySelector("#twincue-root")?.shadowRoot;
     return {
-      installed: Boolean(window.__ytNativeBilingualInstalled),
+      installed: Boolean(window.__TwinCueUserscriptInstalled),
+      version: window.TwinCue?.version,
       loggedIn: window.ytcfg?.get?.("LOGGED_IN") ?? null,
       playerStatus: window.ytInitialPlayerResponse?.playabilityStatus?.status ?? null,
-      status,
-      overlayPresent: Boolean(document.querySelector("#yt-native-bilingual-overlay")),
-      sourceTextLength: source.length,
-      translatedTextLength: translated.length,
-      nativeCaptionHidden: document.body.classList.contains("yt-native-bilingual-ready"),
-      captionMetadata: {
-        rendererKeys: Object.keys(renderer || {}),
-        defaultAudioTrackIndex: renderer?.defaultAudioTrackIndex ?? null,
-        audioTracks: (renderer?.audioTracks || []).map((track) => ({
-          keys: Object.keys(track),
-          id: track.id ?? null,
-          audioTrackId: track.audioTrackId ?? null,
-          audioTrackType: track.audioTrackType ?? null,
-          defaultCaptionTrackIndex: track.defaultCaptionTrackIndex ?? null,
-          captionTrackIndices: track.captionTrackIndices ?? null,
-        })),
-        captionTracks: (renderer?.captionTracks || []).map((track, index) => ({
-          index,
-          keys: Object.keys(track),
-          languageCode: track.languageCode,
-          kind: track.kind || "manual",
-          name: track.name?.simpleText || track.name?.runs?.map((run) => run.text).join("") || "",
-          vssId: track.vssId ?? null,
-          isDefault: track.isDefault ?? null,
-          audioTrackType: track.audioTrackType ?? null,
-        })),
-      },
+      status: window.TwinCue?.getStatus(),
+      overlayPresent: Boolean(root?.querySelector("#overlay")),
+      sourceTextLength: root?.querySelector("#source")?.textContent.length || 0,
+      translatedTextLength: root?.querySelector("#translated")?.textContent.length || 0,
+      settingsButtonPresent: Boolean(root?.querySelector("#settings-button")),
+      nativeCaptionHidden: document.body.classList.contains("twincue-ready"),
     };
   });
 
@@ -173,14 +140,17 @@ try {
     pageState,
     timedText,
     pageErrors,
-    consoleErrors: consoleErrors.slice(-20),
   };
   await writeFile(
-    path.resolve("artifacts", "profile-extension-diagnostic.json"),
+    path.resolve("artifacts", "userscript-profile-diagnostic.json"),
     `${JSON.stringify(report, null, 2)}\n`,
     "utf8",
   );
   console.log(JSON.stringify(report, null, 2));
+
+  if (pageState.status?.state !== "ready") process.exitCode = 1;
+  if (!pageState.loggedIn || pageState.playerStatus !== "OK") process.exitCode = 1;
+  if (!pageState.sourceTextLength || !pageState.translatedTextLength) process.exitCode = 1;
 } finally {
   if (browser) await browser.close().catch(() => {});
   if (chrome.exitCode === null) chrome.kill();
