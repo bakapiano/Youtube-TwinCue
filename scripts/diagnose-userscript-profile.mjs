@@ -40,6 +40,7 @@ const chrome = spawn(
     "--profile-directory=Default",
     `--remote-debugging-port=${port}`,
     "--remote-allow-origins=*",
+    "--mute-audio",
     "--window-position=-32000,-32000",
     "--window-size=1200,900",
     "about:blank",

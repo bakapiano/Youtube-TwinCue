@@ -2,7 +2,7 @@
 // @name         TwinCue – Native Bilingual Subtitles for YouTube
 // @name:zh-CN   TwinCue – YouTube 原生双语字幕
 // @namespace    https://github.com/bakapiano/Youtube-TwinCue
-// @version      0.3.3
+// @version      0.3.4
 // @description  Auto-detect YouTube captions and display synchronized source and auto-translated subtitles.
 // @description:zh-CN 自动识别 YouTube 原字幕，并同步显示原文与 YouTube 自动翻译字幕。
 // @author       Bakapiano
@@ -23,7 +23,7 @@
   if (window.top !== window.self || window.__TwinCueUserscriptInstalled) return;
   window.__TwinCueUserscriptInstalled = true;
 
-  const VERSION = "0.3.3";
+  const VERSION = "0.3.4";
   const SETTINGS_KEY = "twincue:settings:v1";
   const DEFAULT_SETTINGS = {
     enabled: true,
@@ -583,8 +583,25 @@
   async function waitForPlayerResponse(videoId, timeoutMs = 20_000) {
     const deadline = Date.now() + timeoutMs;
     while (Date.now() < deadline) {
-      const response = window.ytInitialPlayerResponse;
-      if (response?.videoDetails?.videoId === videoId) return response;
+      const player = document.querySelector("#movie_player");
+      let playerResponse = null;
+      try {
+        playerResponse = player?.getPlayerResponse?.() || null;
+      } catch {
+        // Some player states temporarily reject API reads during navigation.
+      }
+      if (playerResponse?.videoDetails?.videoId === videoId) return playerResponse;
+
+      const initialResponse = window.ytInitialPlayerResponse;
+      if (initialResponse?.videoDetails?.videoId === videoId) return initialResponse;
+
+      try {
+        const serialized = window.ytplayer?.config?.args?.player_response;
+        const configResponse = serialized ? JSON.parse(serialized) : null;
+        if (configResponse?.videoDetails?.videoId === videoId) return configResponse;
+      } catch {
+        // The legacy config is optional and may be incomplete while navigating.
+      }
       await new Promise((resolve) => setTimeout(resolve, 250));
     }
     return null;

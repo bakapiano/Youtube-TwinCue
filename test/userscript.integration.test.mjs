@@ -20,7 +20,7 @@ const mockPage = String.raw`<!doctype html>
 <body>
   <div id="movie_player" style="position:relative;width:960px;height:540px;background:#111"></div>
   <script>
-    window.ytInitialPlayerResponse = {
+    const fixturePlayerResponse = {
       playabilityStatus: { status: "OK" },
       videoDetails: { videoId: "testvideo01", title: "Userscript fixture", author: "Local test" },
       captions: { playerCaptionsTracklistRenderer: {
@@ -33,6 +33,7 @@ const mockPage = String.raw`<!doctype html>
       } }
     };
     const player = document.querySelector("#movie_player");
+    player.getPlayerResponse = () => fixturePlayerResponse;
     player.loadModule = () => {};
     player.getCurrentTime = () => 1;
     player.setOption = (_module, option, track) => {
@@ -93,7 +94,7 @@ test("TwinCue userscript detects the source language and renders bilingual capti
       };
     });
 
-    assert.equal(result.version, "0.3.3");
+    assert.equal(result.version, "0.3.4");
     assert.equal(result.status.sourceLanguage, "en");
     assert.equal(result.status.autoDetectedSource, true);
     assert.equal(result.source, "Hello from YouTube");
